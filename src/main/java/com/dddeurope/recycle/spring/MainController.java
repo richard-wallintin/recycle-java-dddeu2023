@@ -2,6 +2,7 @@ package com.dddeurope.recycle.spring;
 
 import com.dddeurope.recycle.commands.CalculatePrice;
 import com.dddeurope.recycle.commands.CommandMessage;
+import com.dddeurope.recycle.domain.Price;
 import com.dddeurope.recycle.domain.PriceCalculator;
 import com.dddeurope.recycle.events.Event;
 import com.dddeurope.recycle.events.EventMessage;
@@ -37,18 +38,14 @@ public class MainController {
     public ResponseEntity<EventMessage> handle(@RequestBody RecycleRequest request) {
         LOGGER.info("Incoming Request: {}", request.asString());
 
-        // If you have no inspiration to start implementing, uncomment this part:
-        // PriceCalculator calculator = new PriceCalculator(eventsOf(request));
-        // CalculatePrice command = commandOf(request);
-        // double amount = calculator.calculatePrice(command.cardId());
-        // return ResponseEntity.ok(new EventMessage(
-        //     UUID.randomUUID().toString(),
-        //     new PriceWasCalculated(command.cardId(), amount, "EUR")
-        // ));
+        PriceCalculator priceCalculator = new PriceCalculator(eventsOf(request));
+
+        String cardId = commandOf(request).cardId();
+        Price calculatedPrice = priceCalculator.calculatePrice(cardId);
 
         return ResponseEntity.ok(new EventMessage(
             UUID.randomUUID().toString(),
-            new PriceWasCalculated("123", 1, "EUR")
+            new PriceWasCalculated(cardId, calculatedPrice.asEuroDouble() , "EUR")
         ));
     }
 
